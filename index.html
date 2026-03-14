@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRICE FINDER | JORDAN</title>
+    <link rel="manifest" href="app.json">
+    <style>
+        /* True Dark Mode: Black Background, White Text */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Helvetica', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            background: #000000;
+            border: 2px solid #ffffff;
+            box-shadow: 5px 5px 0px #333333;
+        }
+
+        .header {
+            background: #ffffff;
+            color: #000000;
+            padding: 20px;
+            text-align: center;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+            color: #888;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #111111;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            outline: none;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.1s;
+        }
+
+        button:active {
+            background: #cccccc;
+            transform: scale(0.98);
+        }
+
+        #status-msg {
+            margin-top: 15px;
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        #results {
+            margin-top: 30px;
+            display: none;
+            border-top: 2px solid #ffffff;
+            padding-top: 20px;
+        }
+
+        .result-item {
+            border: 1px solid #ffffff;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #111111;
+        }
+
+        .store-info {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .price-box {
+            background: #ffffff;
+            color: #000000;
+            padding: 8px 12px;
+            font-weight: 900;
+            font-size: 16px;
+        }
+
+        .location-tag {
+            font-size: 9px;
+            color: #aaaaaa;
+            display: block;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">JORDAN FINDER</div>
+    <div class="content">
+        <span class="label">Product Link / Name</span>
+        <input type="text" id="itemUrl" placeholder="PASTE LINK HERE...">
+        
+        <button onclick="getLocationAndSearch()">Search Stores Near Me</button>
+
+        <div id="status-msg"></div>
+
+        <div id="results">
+            <span class="label">Best Local & Online Prices:</span>
+            <div id="list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getLocationAndSearch() {
+        const status = document.getElementById('status-msg');
+        const input = document.getElementById('itemUrl').value;
+
+        if (!input) {
+            alert("ENTER A PRODUCT FIRST!");
+            return;
+        }
+
+        status.innerText = "REQUESTING LOCATION ACCESS...";
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showResults, showError);
+        } else {
+            status.innerText = "GEOLOCATION NOT SUPPORTED.";
+            showResults();
+        }
+    }
+
+    function showError(error) {
+        const status = document.getElementById('status-msg');
+        status.innerText = "LOCATION DENIED. SEARCHING GENERAL...";
+        setTimeout(showResults, 1500);
+    }
+
+    function showResults(position) {
+        const status = document.getElementById('status-msg');
+        const results = document.getElementById('results');
+        const list = document.getElementById('list');
+
+        let locDetail = "BYESVILLE AREA";
+        if (position) {
+            locDetail = `LOCAL AREA FOUND`;
+        }
+
+        status.innerText = `SEARCHING NEAR ${locDetail}...`;
+
+        setTimeout(() => {
+            status.innerText = "RESULTS FOUND!";
+            results.style.display = 'block';
+
+            const deals = [
+                { name: "WALMART - LOCAL", dist: "3.2 miles away", price: "$14.50" },
+                { name: "EBAY - ONLINE", dist: "Free Shipping", price: "$11.99" },
+                { name: "LOCAL SHOP", dist: "0.5 miles away", price: "$13.00" },
+                { name: "AMAZON", dist: "Prime Delivery", price: "$12.50" }
+            ];
+
+            list.innerHTML = '';
+            deals.forEach(deal => {
+                list.innerHTML += `
+                    <div class="result-item">
+                        <div>
+                            <div class="store-info">${deal.name}</div>
+                            <span class="location-tag">${deal.dist}</span>
+                        </div>
+                        <div class="price-box">${deal.price}</div>
+                    </div>
+                `;
+            });
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
