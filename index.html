@@ -6,7 +6,6 @@
     <title>lower price</title>
     <link rel="manifest" href="app.json">
     <style>
-        /* Black Background, White Text Theme */
         body {
             background-color: #000000;
             color: #ffffff;
@@ -16,15 +15,12 @@
             justify-content: center;
             padding: 20px;
         }
-
         .app-container {
             width: 100%;
             max-width: 400px;
             background: #000000;
             border: 2px solid #ffffff;
-            box-shadow: 5px 5px 0px #333333;
         }
-
         .header {
             background: #ffffff;
             color: #000000;
@@ -34,33 +30,18 @@
             text-transform: uppercase;
             letter-spacing: 3px;
         }
-
-        .content {
-            padding: 25px;
-        }
-
-        .label {
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: block;
-            color: #888;
-        }
-
+        .content { padding: 25px; }
+        .label { font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; color: #888; }
         input {
             width: 100%;
             padding: 15px;
             background: #111111;
             border: 2px solid #ffffff;
             color: #ffffff;
-            font-size: 14px;
             margin-bottom: 20px;
             box-sizing: border-box;
             outline: none;
-            font-weight: bold;
         }
-
         button {
             width: 100%;
             padding: 15px;
@@ -70,31 +51,8 @@
             font-weight: 900;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.1s;
         }
-
-        button:active {
-            background: #cccccc;
-            transform: scale(0.98);
-        }
-
-        #status-msg {
-            margin-top: 15px;
-            font-size: 10px;
-            text-align: center;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #ffffff;
-        }
-
-        #results {
-            margin-top: 30px;
-            display: none;
-            border-top: 2px solid #ffffff;
-            padding-top: 20px;
-        }
-
+        #results { margin-top: 30px; display: none; border-top: 2px solid #ffffff; padding-top: 20px; }
         .result-item {
             border: 1px solid #ffffff;
             padding: 15px;
@@ -104,34 +62,15 @@
             align-items: center;
             background: #111111;
         }
-
-        .store-info {
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 12px;
-        }
-
+        .store-info { font-weight: bold; text-transform: uppercase; font-size: 12px; }
         .price-box {
             background: #ffffff;
             color: #000000;
             padding: 8px 12px;
             font-weight: 900;
-            font-size: 16px;
-            transition: 0.2s;
             cursor: pointer;
         }
-
-        .price-box:hover {
-            background: #007bff;
-            color: #ffffff;
-        }
-
-        .location-tag {
-            font-size: 9px;
-            color: #aaaaaa;
-            display: block;
-            margin-top: 4px;
-        }
+        .location-tag { font-size: 9px; color: #aaaaaa; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -141,68 +80,48 @@
     <div class="content">
         <span class="label">Product Link / Name</span>
         <input type="text" id="itemUrl" placeholder="PASTE LINK HERE...">
-        
-        <button onclick="getLocationAndSearch()">Search Stores Near Me</button>
-
-        <div id="status-msg"></div>
-
+        <button onclick="runSearch()">Search Best Prices</button>
+        <div id="status-msg" style="text-align:center; font-size:10px; margin-top:10px;"></div>
         <div id="results">
-            <span class="label">Best Prices (Tap Price to View):</span>
+            <span class="label">Results (Tap Price to View):</span>
             <div id="list"></div>
         </div>
     </div>
 </div>
 
 <script>
-    function getLocationAndSearch() {
-        const status = document.getElementById('status-msg');
+    // --- APP STARTUP: ASKS FOR PERMISSIONS ---
+    window.onload = function() {
+        // Ask for Notifications
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
+        // Ask for Location immediately
+        navigator.geolocation.getCurrentPosition(() => {
+            console.log("Location access granted.");
+        }, () => {
+            console.log("Location access denied.");
+        });
+    };
+
+    function runSearch() {
         const input = document.getElementById('itemUrl').value;
-
-        if (!input) {
-            alert("ENTER A PRODUCT FIRST!");
-            return;
-        }
-
-        status.innerText = "REQUESTING LOCATION ACCESS...";
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showResults, showError);
-        } else {
-            status.innerText = "GEOLOCATION NOT SUPPORTED.";
-            showResults();
-        }
-    }
-
-    function showError(error) {
+        if (!input) return alert("ENTER A PRODUCT!");
+        
         const status = document.getElementById('status-msg');
-        status.innerText = "LOCATION DENIED. SEARCHING GENERAL...";
-        setTimeout(showResults, 1500);
-    }
-
-    function showResults(position) {
-        const status = document.getElementById('status-msg');
-        const results = document.getElementById('results');
-        const list = document.getElementById('list');
-
-        let locDetail = "BYESVILLE AREA";
-        if (position) {
-            locDetail = `LOCAL AREA FOUND`;
-        }
-
-        status.innerText = `SEARCHING NEAR ${locDetail}...`;
+        status.innerText = "FINDING DEALS NEAR YOU...";
 
         setTimeout(() => {
-            status.innerText = "RESULTS FOUND!";
-            results.style.display = 'block';
+            document.getElementById('results').style.display = 'block';
+            status.innerText = "";
 
-            // Deals with integrated URLs
             const deals = [
-                { name: "WALMART - LOCAL", dist: "3.2 miles away", price: "$14.50", url: "https://www.walmart.com" },
-                { name: "EBAY - ONLINE", dist: "Free Shipping", price: "$11.99", url: "https://www.ebay.com" },
-                { name: "LOCAL SHOP", dist: "0.5 miles away", price: "$13.00", url: "https://www.google.com/maps" },
-                { name: "AMAZON", dist: "Prime Delivery", price: "$12.50", url: "https://www.amazon.com" }
+                { name: "WALMART", dist: "Near Byesville", price: "$14.50", url: "https://www.walmart.com" },
+                { name: "AMAZON", dist: "Prime Shipping", price: "$12.99", url: "https://www.amazon.com" },
+                { name: "EBAY", dist: "Best Price Online", price: "$11.00", url: "https://www.ebay.com" }
             ];
 
+            const list = document.getElementById('list');
             list.innerHTML = '';
             deals.forEach(deal => {
                 list.innerHTML += `
@@ -211,15 +130,14 @@
                             <div class="store-info">${deal.name}</div>
                             <span class="location-tag">${deal.dist}</span>
                         </div>
-                        <a href="${deal.url}" target="_blank" style="text-decoration: none;">
+                        <a href="${deal.url}" target="_blank" style="text-decoration:none;">
                             <div class="price-box">${deal.price}</div>
                         </a>
                     </div>
                 `;
             });
-        }, 2000);
+        }, 1500);
     }
 </script>
-
 </body>
 </html>
